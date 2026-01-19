@@ -1,0 +1,14 @@
+---
+- name: List OpenShift Nodes
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Get node information
+      kubernetes.core.k8s_info:
+        kind: Node
+      register: node_list
+
+    - name: Display node names
+      ansible.builtin.debug:
+        msg: "{{ item.metadata.name }} is {{ item.status.conditions | selectattr('type', 'equalto', 'Ready') | map(attribute='status') | first }}"
+      loop: "{{ node_list.resources }}"
